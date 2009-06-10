@@ -1,20 +1,47 @@
-# This uses ANSI color codes to apply color to logger.debug statements
-# An ANSI code begins with an escape character (ASCII 27) followed by the formatting code
-# [0m is reset, [1m is bold, [30m-[39m are font colors, [40m-[49m are background colors
+class ColorLogger
+  CTRL        = 27.chr
+  RESET_CODES = CTRL + "[0m"
+  
+  BOLD_ON  = CTRL + "[1m"
+  BOLD_OFF = CTRL + "[22m"
+  
+  # Set defaults
+  @@text = :white
+  @@bg   = :blue
+  
+  COLORS = {
+    :text => {
+      :black =>   CTRL + "[30m",
+      :red =>     CTRL + "[31m",
+      :green =>   CTRL + "[32m",
+      :yellow =>  CTRL + "[33m",
+      :blue =>    CTRL + "[34m",
+      :magenta => CTRL + "[35m",
+      :cyan =>    CTRL + "[36m",
+      :white =>   CTRL + "[37m"
+    },
+    
+    :bg => {
+      :black =>   CTRL + "[40m",
+      :red =>     CTRL + "[41m",
+      :green =>   CTRL + "[42m",
+      :yellow =>  CTRL + "[43m",
+      :blue =>    CTRL + "[44m",
+      :magenta => CTRL + "[45m",
+      :cyan =>    CTRL + "[46m",
+      :white =>   CTRL + "[47m"
+    }
+  }
+  
+  def self.colorize(message, args={})
+    # Fall back to default colors if they pass invalid color names
+    args.delete(:text) if (args.has_key?(:text) && !COLORS[:text].has_key?(args[:text]))
+    args.delete(:bg) if (args.has_key?(:bg) && !COLORS[:bg].has_key?(args[:bg]))
+    
+    COLORS[:text][args[:text] || @@text] + COLORS[:bg][args[:bg] || @@bg] + (args[:bold] ? BOLD_ON : BOLD_OFF) + message + RESET_CODES
+  end
+end
 
-  
-def color_logger(input)
-  RAILS_DEFAULT_LOGGER.debug 27.chr + "[1m" + 27.chr + "[43m" + input + 27.chr + "[0m"
+def c(message, args={})
+  ColorLogger.colorize(message, args)
 end
-  
-def color_logger_error(input)
-  RAILS_DEFAULT_LOGGER.debug 27.chr + "[1m" + 27.chr + "[37m" + 27.chr + "[41m" + input + 27.chr + "[0m"
-end
-  
-  
-# $ascii_reset = 27.chr + "[0m"
-# $ascii_bold_on = 27.chr + "[1m"
-# $ascii_bold_off = 27.chr + "[22m"
-# $ascii_text_white = 27.chr + "[37m"
-# $ascii_bg_red = 27.chr + "[41m"
-# $ascii_bg_yellow = 27.chr + "[43m"
