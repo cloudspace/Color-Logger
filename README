@@ -1,0 +1,5 @@
+Output from this method will show up in color in terminal windows. Use it with puts or Logger.
+
+Drop this file in RAILS_ROOT/config/initializers
+
+Use the helper method c() as a shortcut for the colorizer
